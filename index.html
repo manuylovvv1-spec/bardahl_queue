@@ -1,112 +1,90 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Очередь мастеров</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#111111">
+<title>BARDAHL — Очередь мастеров</title>
 <style>
-  body { background: #101112; color: #f6f6f6; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; max-width: 600px; margin: 20px auto; }
-  .card { background: #1b1d1f; padding: 16px; border-radius: 12px; margin-bottom: 20px; }
-  label { display:block; margin: 6px 0; }
-  select, input[type="number"] { width: 100%; padding: 8px; margin: 6px 0 12px; border-radius: 6px; border: none; }
-  button { background: #f4d21f; border: none; padding: 10px 16px; font-weight: 700; border-radius: 8px; cursor: pointer; }
-  ul { padding-left: 20px; }
-  li { margin-bottom: 8px; }
+:root{--bg:#101112;--panel:#1b1d1f;--panel2:#24272a;--text:#f6f6f6;--muted:#aeb3b8;--yellow:#f4d21f;--green:#2ec27e;--red:#ff625e;--line:#34383c}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:16px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+header{padding:22px 16px 16px;background:#080909;border-bottom:3px solid var(--yellow);position:sticky;top:0;z-index:2}
+.brand{font-weight:900;letter-spacing:2px;font-size:25px}.sub{color:var(--muted);font-size:13px;margin-top:4px}
+main{max-width:760px;margin:auto;padding:16px 14px 40px}.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px;margin:0 0 14px}
+h2{font-size:17px;margin:0 0 12px}label{display:block;color:var(--muted);font-size:13px;margin:10px 0 6px}
+input,select,textarea{width:100%;background:#0f1011;color:var(--text);border:1px solid #44494e;border-radius:10px;padding:12px;font:inherit;min-height:46px}
+button{border:0;border-radius:11px;padding:12px 14px;font:700 15px inherit;cursor:pointer;min-height:44px}
+.primary{background:var(--yellow);color:#111}.secondary{background:var(--panel2);color:var(--text);border:1px solid #45494d}.danger{background:#5b2424;color:#fff}.success{background:#174b36;color:#fff}
+button:disabled{opacity:.45;cursor:not-allowed}.row{display:flex;gap:8px;flex-wrap:wrap}.row>*{flex:1}.small{font-size:12px;color:var(--muted)}.hidden{display:none!important}
+.banner{padding:11px 12px;border-radius:10px;background:#2a2d30;color:#e7e7e7;margin-bottom:12px;font-size:13px}
+.banner.warn{border:1px solid #8c6b16}.banner.ok{border:1px solid #236846}
+.roundinfo{display:flex;justify-content:space-between;gap:8px;align-items:center}.roundnum{font-size:13px;color:var(--yellow);font-weight:800}
+.person{display:flex;align-items:center;gap:10px;padding:13px 0;border-bottom:1px solid var(--line)}.person:last-child{border-bottom:0}
+.num{width:32px;height:32px;display:grid;place-items:center;background:#303337;border-radius:50%;font-weight:800;color:var(--yellow);flex-shrink:0}
+.pinfo{flex:1;min-width:0}.pname{font-weight:750}.pstatus{font-size:12px;color:var(--muted);margin-top:3px}.pill{display:inline-block;padding:5px 8px;border-radius:99px;background:#33383b;font-size:11px;font-weight:700}.pill.done{background:#174b36;color:#8df0bd}.pill.active{background:#4d4211;color:#ffeb78}
+.person-actions{display:flex;gap:6px;flex-wrap:wrap}.person-actions button{padding:8px 10px;min-height:36px;font-size:12px}
+.listitem{background:#151718;border:1px solid var(--line);border-radius:12px;padding:12px;margin-top:8px}.listhead{display:flex;justify-content:space-between;gap:8px}.listhead strong{font-size:14px}.listitem p{margin:6px 0;color:var(--muted);font-size:13px}
+footer{text-align:center;color:#777;font-size:11px;padding:10px}
+#toast{position:fixed;bottom:18px;left:14px;right:14px;max-width:600px;margin:auto;background:#f4d21f;color:#111;font-weight:700;padding:12px 14px;border-radius:12px;display:none;z-index:5}
 </style>
 </head>
 <body>
-
+<header><div class="brand">BARDAHL</div><div class="sub">ОЧЕРЕДЬ МАСТЕРОВ · общая очередь сервиса</div></header>
+<main>
+<div id="setupNotice" class="banner warn">Для общей очереди сначала подключите базу Supabase. Инструкция находится в файле README.txt.</div>
+<section class="card" id="loginCard">
+<h2>Войти в очередь</h2>
+<label for="masterSelect">Выберите своё имя</label>
+<select id="masterSelect"><option value="">Загрузка списка…</option></select>
+<div class="row" style="margin-top:12px"><button id="loginBtn" class="primary">Войти</button></div>
+<div class="small" style="margin-top:8px">Вход без пароля. Выберите своё имя — оно будет использоваться для отметок в очереди.</div>
+</section>
+<section id="app" class="hidden">
 <div class="card">
-  <h2>Добавить мастера в очередь:</h2>
-  <label for="masterName">Имя мастера:</label>
-  <input type="text" id="masterName" placeholder="Введите имя мастера" />
-
-  <label for="masterOrder">Порядковый номер в день (1-6):</label>
-  <input type="number" id="masterOrder" min="1" max="6" />
-
-  <fieldset>
-    <legend>Выберите услуги (можно несколько):</legend>
-    <label><input type="checkbox" class="serviceCheckbox" value="АКПП" /> АКПП</label>
-    <label><input type="checkbox" class="serviceCheckbox" value="Антифриз" /> Антифриз</label>
-    <label><input type="checkbox" class="serviceCheckbox" value="Халдекс" /> Халдекс</label>
-  </fieldset>
-
-  <button id="enterBtn">Вход мастера</button>
+<div class="roundinfo"><h2 style="margin:0">Текущий круг</h2><span class="roundnum" id="roundLabel">КРУГ №1</span></div>
+<p class="small" style="margin:8px 0 12px">Порядок общий для всех сотрудников. После завершения работы отметьте свой статус. Круг переключится автоматически, когда все участники завершат круг.</p>
+<div class="row"><button id="doneBtn" class="primary">Завершил работу в круге</button><button id="refreshBtn" class="secondary">Обновить</button></div>
+<div id="myStatus" class="small" style="margin-top:10px"></div>
 </div>
-
-<div class="card">
-  <h2>Очередь мастеров (активные только):</h2>
-  <ul id="queueList">
-    <!-- Здесь будет список мастеров -->
-  </ul>
+<div class="card"><div class="roundinfo"><h2>Очередь мастеров</h2><span class="pill" id="countPill">0 участников</span></div><div id="queue"></div></div>
+<div class="card" id="workCard">
+<h2>Добавить работу / услугу</h2>
+<label for="workName">Автомобиль или работа</label><input id="workName" placeholder="Например: Camry — замена масла">
+<label for="workNote">Комментарий (необязательно)</label><input id="workNote" placeholder="Дополнительная информация">
+<button id="addWorkBtn" class="primary" style="margin-top:12px;width:100%">Добавить в историю</button>
 </div>
-
+<div class="card"><div class="roundinfo"><h2>История работ</h2><button id="historyRefresh" class="secondary">Обновить</button></div><div id="history"></div></div>
+<div class="row"><button id="logoutBtn" class="secondary">Выйти</button><button id="resetBtn" class="danger">Сбросить мой статус круга</button></div>
+</section>
+<footer>BARDAHL · Очередь мастеров</footer>
+</main><div id="toast"></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-  // Массив мастеров, будет содержать объекты вида:
-  // {id, name, order, services[], isActive, roundsToSkip}
-  const masters = [];
-  let nextId = 1;
-
-  const nameInput = document.getElementById('masterName');
-  const orderInput = document.getElementById('masterOrder');
-  const enterBtn = document.getElementById('enterBtn');
-  const queueList = document.getElementById('queueList');
-
-  // Отрисовка очереди — показываем только активных мастеров (isActive === true)
-  function renderQueue() {
-    queueList.innerHTML = '';
-    masters.filter(m => m.isActive).forEach(master => {
-      const li = document.createElement('li');
-      li.textContent = ${master.name} (№${master.order}) — Услуги: ${master.services.join(', ')} — Пропускает ${master.roundsToSkip} круг(а);
-      queueList.appendChild(li);
-    });
-    if(queueList.children.length === 0) {
-      queueList.textContent = 'Нет активных мастеров в очереди.';
-    }
-  }
-
-  // Функция, вызываемая при нажатии "Вход мастера"
-  enterBtn.addEventListener('click', () => {
-    const name = nameInput.value.trim();
-    const order = parseInt(orderInput.value);
-    const serviceCheckboxes = document.querySelectorAll('.serviceCheckbox:checked');
-    const selectedServices = Array.from(serviceCheckboxes).map(cb => cb.value);
-
-    if (!name) {
-      alert('Введите имя мастера.');
-      return;
-    }
-    if (isNaN(order) || order < 1 || order > 6) {
-      alert('Пожалуйста, укажите порядковый номер от 1 до 6.');
-      return;
-    }
-    if (selectedServices.length === 0) {
-      alert('Выберите хотя бы одну услугу.');
-      return;
-    }
-
-    // Добавляем мастера, ставим isActive = true
-    const roundsToSkip = selectedServices.length; // пропуск кругов равен числу выбранных услуг
-
-    masters.push({
-      id: nextId++,
-      name: name,
-      order: order,
-      services: selectedServices,
-      isActive: true,
-      roundsToSkip: roundsToSkip
-    });
-
-    // Очищаем форму
-    nameInput.value = '';
-    orderInput.value = '';
-    serviceCheckboxes.forEach(cb => cb.checked = false);
-
-    renderQueue();
-  });
-
-  renderQueue();
+/* После создания проекта Supabase вставьте URL и anon key ниже. */
+const SUPABASE_URL = "https://hukjysgbphwtydcrrbeq.supabase.co/rest/v1/";
+const SUPABASE_ANON_KEY = "sb_publishable_zmhOFiIE4OnMGCiLpbohEg_CGhrqeo2";
+const MASTERS = ["Андрей","Дмитрий","Константин","Самат","Иван.О","Яков","Степан","Иван","Александр","Руководитель"];
+let db=null, me=localStorage.getItem("bardahl_queue_master")||"", state=null, polling=null;
+const $=id=>document.getElementById(id);
+function toast(msg){$("toast").textContent=msg;$("toast").style.display="block";setTimeout(()=>$("toast").style.display="none",2600)}
+function escapeHtml(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function initSelect(){ $("masterSelect").innerHTML='<option value="">— Выберите мастера —</option>'+MASTERS.map(n=>`<option>${escapeHtml(n)}</option>`).join(""); if(me&&MASTERS.includes(me))$("masterSelect").value=me;}
+function connected(){return !SUPABASE_URL.startsWith("ВСТАВЬТЕ_")&&!SUPABASE_ANON_KEY.startsWith("ВСТАВЬТЕ_")&&window.supabase}
+function showSetup(){ $("setupNotice").classList.remove("hidden"); $("setupNotice").textContent=connected()?"Подключение к общей очереди…":"Сначала подключите Supabase по инструкции в README.txt. Без базы данные не будут общими для сотрудников."; }
+async function connect(){if(!connected()){showSetup();return false}db=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);try{const {error}=await db.from("queue_state").select("id").limit(1);if(error)throw error;$("setupNotice").classList.add("hidden");return true}catch(e){$("setupNotice").classList.remove("hidden");$("setupNotice").textContent="Не удалось подключиться к базе: "+e.message+" · Проверьте настройки из README.txt.";return false}}
+async function loadAll(){if(!db)return;try{const [s,q,h]=await Promise.all([db.from("queue_state").select("*").eq("id",1).single(),db.from("queue_members").select("*").order("position"),db.from("queue_history").select("*").order("created_at",{ascending:false}).limit(30)]);if(s.error)throw s.error;if(q.error)throw q.error;if(h.error)throw h.error;state={state:s.data,members:q.data,history:h.data};render()}catch(e){toast("Ошибка загрузки: "+e.message)}}
+function render(){if(!state)return;const round=state.state.round_number;$("roundLabel").textContent="КРУГ №"+round;$("countPill").textContent=state.members.length+" участников";
+const mine=state.members.find(m=>m.name===me);$("myStatus").textContent=mine?(mine.done_round===round?"Ваш статус: круг завершён ✓":"Ваш статус: ожидает завершения текущего круга"):"";
+$("doneBtn").disabled=!mine||mine.done_round===round;
+$("queue").innerHTML=state.members.map((m,i)=>{const done=m.done_round===round;return `<div class="person"><div class="num">${i+1}</div><div class="pinfo"><div class="pname">${escapeHtml(m.name)} ${m.name===me?"(вы)":""}</div><div class="pstatus">${done?"Завершил текущий круг":"Ожидает завершения"}</div></div><span class="pill ${done?"done":"active"}">${done?"ГОТОВО":"В ОЧЕРЕДИ"}</span></div>`}).join("");
+$("history").innerHTML=state.history.length?state.history.map(h=>`<div class="listitem"><div class="listhead"><strong>${escapeHtml(h.work_name)}</strong><span class="small">${new Date(h.created_at).toLocaleString("ru-RU",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"})}</span></div><p>Добавил: ${escapeHtml(h.master_name)}${h.note?" · "+escapeHtml(h.note):""}</p></div>`).join(""):'<div class="small">История пока пустая.</div>'}
+async function login(){const n=$("masterSelect").value;if(!n)return toast("Выберите имя");if(!await connect())return;me=n;localStorage.setItem("bardahl_queue_master",me);$("loginCard").classList.add("hidden");$("app").classList.remove("hidden");await loadAll();if(polling)clearInterval(polling);polling=setInterval(loadAll,12000)}
+async function markDone(){if(!db||!me)return;try{const {data:member,error}=await db.from("queue_members").select("*").eq("name",me).single();if(error)throw error;const {data:s,error:se}=await db.from("queue_state").select("*").eq("id",1).single();if(se)throw se;if(member.done_round===s.round_number)return toast("Вы уже завершили этот круг");const {error:ue}=await db.from("queue_members").update({done_round:s.round_number,updated_at:new Date().toISOString()}).eq("name",me);if(ue)throw ue;
+const {data:all,error:ae}=await db.from("queue_members").select("done_round");if(ae)throw ae;if(all.every(x=>x.done_round===s.round_number)){const {error:re}=await db.from("queue_state").update({round_number:s.round_number+1,updated_at:new Date().toISOString()}).eq("id",1);if(re)throw re;toast("Все завершили круг! Начался новый круг №"+(s.round_number+1))}else toast("Статус отмечен");await loadAll()}catch(e){toast("Не удалось обновить статус: "+e.message)}}
+async function addWork(){const name=$("workName").value.trim(),note=$("workNote").value.trim();if(!name)return toast("Введите автомобиль или работу");try{const {error}=await db.from("queue_history").insert({work_name:name,note:note||null,master_name:me});if(error)throw error;$("workName").value="";$("workNote").value="";await loadAll();toast("Добавлено в историю")}catch(e){toast("Не удалось добавить: "+e.message)}}
+$("loginBtn").addEventListener("click",login);$("doneBtn").addEventListener("click",markDone);$("refreshBtn").addEventListener("click",loadAll);$("historyRefresh").addEventListener("click",loadAll);$("addWorkBtn").addEventListener("click",addWork);
+$("logoutBtn").addEventListener("click",()=>{me="";localStorage.removeItem("bardahl_queue_master");if(polling)clearInterval(polling);$("app").classList.add("hidden");$("loginCard").classList.remove("hidden");$("masterSelect").value=""});
+$("resetBtn").addEventListener("click",async()=>{if(!confirm("Сбросить отметку о завершении текущего круга?"))return;try{const {data:s,error:se}=await db.from("queue_state").select("round_number").eq("id",1).single();if(se)throw se;const {error}=await db.from("queue_members").update({done_round:0,updated_at:new Date().toISOString()}).eq("name",me);if(error)throw error;await loadAll();toast("Статус сброшен")}catch(e){toast(e.message)}});
+initSelect();showSetup();if(me&&MASTERS.includes(me)){$("masterSelect").value=me}
 </script>
-
-</body>
-</html>
+</body></html>

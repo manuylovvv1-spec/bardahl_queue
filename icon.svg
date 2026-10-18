@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+<rect width="512" height="512" rx="88" fill="#111111"/>
+<path d="M44 72h424v18H44z" fill="#f4d21f"/>
+<g transform="translate(320 100)"><rect width="136" height="86" fill="#f4d21f"/><path d="M0 0h45v43H0zM90 0h46v43H90zM45 43h45v43H45z" fill="#111111"/><path d="M0 86V0M136 0v86" stroke="#fff" stroke-width="5"/></g>
+<text x="256" y="290" fill="#f4d21f" font-family="Arial,Helvetica,sans-serif" font-size="82" font-weight="900" font-style="italic" text-anchor="middle" letter-spacing="-4">BARDAHL</text>
+<path d="M74 325h364l-26 16H48z" fill="#f4d21f"/>
+<text x="256" y="385" fill="#ffffff" font-family="Arial,Helvetica,sans-serif" font-size="26" font-weight="800" text-anchor="middle" letter-spacing="4">QUEUE</text>
+<g fill="#f4d21f"><rect x="92" y="422" width="36" height="18"/><rect x="164" y="422" width="36" height="18"/><rect x="236" y="422" width="36" height="18"/><rect x="308" y="422" width="36" height="18"/><rect x="380" y="422" width="36" height="18"/></g>
+</svg>
